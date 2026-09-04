@@ -269,18 +269,6 @@ function activateViewerMode(data) {
   document.title = 'Etiqueta ' + (data.os || '') + ' — ESFEUS';
 }
 
- /* ---------- Alternar Visão (Fábrica / Cliente) ---------- */
-let visaoCliente = false;
-
-function toggleVisao() {
-  visaoCliente = !visaoCliente;
-  const btn = document.getElementById('btn-visao');
-  const hQr = document.getElementById('h-qr');
-  const slot = document.getElementById('qr-slot');
-  
-  if (visaoCliente) {
-  
-}
 /* ---------- Inicialização ---------- */
 (function init() {
   const saved = localStorage.getItem('esfeus_base_url');
