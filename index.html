@@ -132,6 +132,20 @@
       <div class="field"><label>DESCRIÇÃO</label><input id="f-desc" oninput="updateCurrent()"></div>
     </div>
     <div class="field"><label>Nº DO DESENHO</label><input id="f-des" oninput="updateCurrent()"></div>
+    <div class="field">
+      <label>TIPO DE EMBALAGEM</label>
+      <input id="f-emb" oninput="updateCurrent()" list="embalagem-opcoes" placeholder="Ex.: caixa de madeira">
+      <datalist id="embalagem-opcoes">
+        <option value="Caixa de madeira">
+        <option value="Caixa de papelão">
+        <option value="Engradado de madeira">
+        <option value="Pallet">
+        <option value="Filme plástico">
+        <option value="Sacola plástica">
+        <option value="A granel">
+        <option value="Big bag">
+      </datalist>
+    </div>
     <div class="row row-2">
       <div class="field"><label>ORDEM DE COMPRA</label><input id="f-oc" oninput="updateCurrent()"></div>
       <div class="field"><label>ITEM</label><input id="f-it" oninput="updateCurrent()"></div>
@@ -175,6 +189,12 @@
           <tr>
             <td class="data" id="v-desc"></td>
             <td class="data" id="v-des" colspan="3"></td>
+          </tr>
+          <tr class="hdr">
+            <td colspan="4">TIPO DE EMBALAGEM</td>
+          </tr>
+          <tr>
+            <td class="data" id="v-emb" colspan="4"></td>
           </tr>
           <tr class="hdr">
             <td>ORDEM DE COMPRA</td><td>ITEM</td><td>NOTA FISCAL</td><td>DATA</td>
@@ -230,13 +250,13 @@ function buildViewerUrl(d) {
   const base = (document.getElementById('base-url').value || window.location.href.split('#')[0]).trim();
   return base + '#e=' + b64enc({
     cli: d.cli, os: d.os, qty: d.qty, desc: d.desc, des: d.des,
-    oc: d.oc, it: d.it, nf: d.nf, dt: d.dt
+    emb: d.emb, oc: d.oc, it: d.it, nf: d.nf, dt: d.dt
   });
 }
 
 /* ---------- CRUD ---------- */
 function addLabel() {
-  const l = { id: nextId++, cli:'', os:'', qty:'', desc:'', des:'', oc:'', it:'', nf:'', dt:'' };
+  const l = { id: nextId++, cli:'', os:'', qty:'', desc:'', des:'', emb:'', oc:'', it:'', nf:'', dt:'' };
   labels.push(l);
   currentId = l.id;
   saveLabels();
@@ -261,7 +281,7 @@ function updateCurrent() {
   if (currentId === null) return;
   const l = labels.find(x => x.id === currentId);
   if (!l) return;
-  ['cli','os','qty','desc','des','oc','it','nf','dt'].forEach(f => {
+  ['cli','os','qty','desc','des','emb','oc','it','nf','dt'].forEach(f => {
     l[f] = document.getElementById('f-' + f).value;
   });
   saveLabels();
@@ -298,7 +318,7 @@ function renderList() {
 
 function renderForm() {
   const l = labels.find(x => x.id === currentId);
-  ['cli','os','qty','desc','des','oc','it','nf','dt'].forEach(f => {
+  ['cli','os','qty','desc','des','emb','oc','it','nf','dt'].forEach(f => {
     const el = document.getElementById('f-' + f);
     el.value = l ? (l[f] || '') : '';
     el.disabled = !l;
@@ -307,9 +327,9 @@ function renderForm() {
 
 function renderPreview() {
   const l = labels.find(x => x.id === currentId);
-  const empty = { cli:'', os:'', qty:'', desc:'', des:'', oc:'', it:'', nf:'', dt:'' };
+  const empty = { cli:'', os:'', qty:'', desc:'', des:'', emb:'', oc:'', it:'', nf:'', dt:'' };
   const d = l || empty;
-  ['cli','os','qty','desc','des','oc','it','nf','dt'].forEach(f => {
+  ['cli','os','qty','desc','des','emb','oc','it','nf','dt'].forEach(f => {
     document.getElementById('v-' + f).textContent = d[f] || '';
   });
 
@@ -392,7 +412,7 @@ function saveBaseUrl() {
 /* ---------- Viewer mode (cliente escaneou) ---------- */
 function activateViewerMode(data) {
   document.body.classList.add('viewer-mode');
-  ['cli','os','qty','desc','des','oc','it','nf','dt'].forEach(f => {
+  ['cli','os','qty','desc','des','emb','oc','it','nf','dt'].forEach(f => {
     const el = document.getElementById('v-' + f);
     if (el) el.textContent = data[f] || '';
   });
