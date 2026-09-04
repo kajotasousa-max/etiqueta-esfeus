@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Etiqueta do Produto — ESFEUS Ferramentaria</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, Helvetica, sans-serif; background: #eef1f5; padding: 20px; color: #222; }
+  .app { max-width: 1150px; margin: 0 auto; }
+
+  .config-bar { background: #fff; padding: 12px 14px; border-radius: 8px; margin-bottom: 14px; display: flex; gap: 10px; align-items: center; font-size: 13px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .config-bar label { font-weight: bold; white-space: nowrap; }
+  .config-bar input { flex: 1; padding: 7px 10px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace; font-size: 12px; }
+
+  .container { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 950px) { .container { grid-template-columns: 1fr; } }
+
+  .panel { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .panel h2 { font-size: 15px; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid #1e5aa8; color: #1e5aa8; }
+
+  .field { margin-bottom: 10px; }
+  .field label { display: block; font-size: 11px; font-weight: bold; color: #555; margin-bottom: 3px; letter-spacing: .3px; }
+  .field input { width: 100%; padding: 7px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+  .field input:focus { outline: none; border-color: #1e5aa8; }
+
+  .row { display: grid; gap: 10px; }
+  .row-2 { grid-template-columns: 1fr 1fr; }
+  .row-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .buttons { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  button { padding: 9px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; }
+  .btn-primary { background: #1e5aa8; color: white; }
+  .btn-primary:hover { background: #164380; }
+  .btn-secondary { background: #555; color: white; }
+  .btn-secondary:hover { background: #333; }
+
+  /* ---------- ETIQUETA ---------- */
+  .etiqueta {
+    border: 2px solid #000;
+    font-family: Arial, sans-serif;
+    color: #000;
+    background: white;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .etiqueta table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .etiqueta td { border: 1px solid #000; padding: 6px 4px; text-align: center; vertical-align: middle; font-size: 12px; word-wrap: break-word; }
+  .etiqueta .hdr { background: #d9d9d9; font-weight: bold; font-size: 11px; }
+  .etiqueta .title { font-size: 15px; font-weight: bold; text-decoration: underline; padding: 12px; }
+  .etiqueta .logo-cell { padding: 8px 6px; }
+  .etiqueta .logo-cell .brand { font-size: 22px; font-weight: 900; color: #1e5aa8; letter-spacing: 3px; line-height: 1; }
+  .etiqueta .logo-cell .sub1 { font-size: 8px; color: #444; font-weight: bold; letter-spacing: 2px; margin-top: 2px; }
+  .etiqueta .logo-cell .sub2 { font-size: 8px; color: #555; margin-top: 3px; font-style: italic; }
+  .etiqueta .data { min-height: 30px; font-weight: bold; }
+  .etiqueta .color-box { height: 32px; padding: 0; }
+  .green  { background: #22c55e; }
+  .yellow { background: #eab308; }
+  .red    { background: #ef4444; }
+  .etiqueta .qr-cell { padding: 6px; background: white; }
+  .etiqueta .qr-cell img, .etiqueta .qr-cell canvas { display: block; margin: 0 auto; }
+  .etiqueta .signature-cell { padding: 8px; }
+  .etiqueta .signature-cell .badge { color: #1e5aa8; font-weight: 900; font-size: 14px; letter-spacing: 2px; }
+  .etiqueta .signature-cell .badge-sub { font-size: 8px; color: #555; margin-top: 2px; }
+
+  /* ---------- MODO VISUALIZADOR (cliente) ---------- */
+  body.viewer-mode { padding: 10px; background: #f0f0f0; }
+  body.viewer-mode .app { max-width: 500px; }
+  body.viewer-mode #config-bar, body.viewer-mode #editor-panel { display: none; }
+  body.viewer-mode .container { grid-template-columns: 1fr; }
+  body.viewer-mode #preview-panel { padding: 12px; background: transparent; box-shadow: none; }
+  body.viewer-mode #preview-panel h2 { display: none; }
+  body.viewer-mode .viewer-footer { display: block; text-align: center; margin-top: 14px; font-size: 11px; color: #777; }
+
+  .viewer-footer { display: none; }
+
+  /* ---------- IMPRESSÃO ---------- */
+  @media print {
+    body { padding: 0; background: white; }
+    #config-bar, #editor-panel, .buttons, h2, .viewer-footer { display: none !important; }
+    .panel { box-shadow: none; padding: 0; }
+    .container { grid-template-columns: 1fr; display: block; }
+    .etiqueta { max-width: 100%; page-break-inside: avoid; }
+    @page { margin: 10mm; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- Barra de configuração -->
+<div class="config-bar" id="config-bar">
+  <label>URL do visualizador:</label>
+  <input type="text" id="base-url" placeholder="ex.: https://seu-usuario.github.io/etiquetas/etiqueta.html">
+  <button class="btn-secondary" onclick="saveBaseUrl()">Salvar</button>
+</div>
+
+<div class="container">
+
+  <!-- EDITOR -->
+  <div class="panel" id="editor-panel">
+    <h2>Dados da etiqueta</h2>
+
+    <div class="row row-2">
+      <div class="field"><label>CLIENTE</label><input id="f-cli" value="NEMAK"></div>
+      <div class="field"><label>OS</label><input id="f-os" value="NK 25.0157"></div>
+    </div>
+
+    <div class="row row-2">
+      <div class="field"><label>QUANTIDADE</label><input id="f-qty" value="4"></div>
+      <div class="field"><label>DESCRIÇÃO</label><input id="f-desc" value="TRAVA"></div>
+    </div>
+
+    <div class="field"><label>Nº DO DESENHO</label><input id="f-des" value="STD003219"></div>
+
+    <div class="row row-2">
+      <div class="field"><label>ORDEM DE COMPRA</label><input id="f-oc" value="4200193803"></div>
+      <div class="field"><label>ITEM</label><input id="f-it" value="80"></div>
+    </div>
+
+    <div class="row row-2">
+      <div class="field"><label>NOTA FISCAL</label><input id="f-nf" value="1731"></div>
+      <div class="field"><label>DATA</label><input id="f-dt" value="23/01/2026"></div>
+    </div>
+
+    <div class="buttons">
+      <button class="btn-primary" onclick="update()">Atualizar preview</button>
+      <button class="btn-secondary" onclick="window.print()">Imprimir etiqueta</button>
+      <button class="btn-secondary" onclick="copyLink()">Copiar link do cliente</button>
+      <button class="btn-secondary" onclick="clearForm()">Limpar campos</button>
+    </div>
+  </div>
+
+  <!-- PREVIEW / VISUALIZADOR -->
+  <div class="panel" id="preview-panel">
+    <h2>Preview — é o que o cliente verá ao ler o QR</h2>
+    <div class="etiqueta" id="etiqueta">
+      <table>
+        <tr>
+          <td class="logo-cell" colspan="1" style="width:40%;">
+            <div class="brand">ESFEUS</div>
+            <div class="sub1">FERRAMENTARIA</div>
+            <div class="sub2">Construção e Manutenção de Estampos</div>
+          </td>
+          <td class="title" colspan="3">ETIQUETA DO PRODUTO</td>
+        </tr>
+        <tr class="hdr">
+          <td>CLIENTE</td><td>OS</td><td colspan="2">QUANTIDADE</td>
+        </tr>
+        <tr>
+          <td class="data" id="v-cli"></td>
+          <td class="data" id="v-os"></td>
+          <td class="data" id="v-qty" colspan="2"></td>
+        </tr>
+        <tr class="hdr">
+          <td>DESCRIÇÃO</td><td colspan="3">Nº DO DESENHO</td>
+        </tr>
+        <tr>
+          <td class="data" id="v-desc"></td>
+          <td class="data" id="v-des" colspan="3"></td>
+        </tr>
+        <tr class="hdr">
+          <td>ORDEM DE COMPRA</td><td>ITEM</td><td>NOTA FISCAL</td><td>DATA</td>
+        </tr>
+        <tr>
+          <td class="data" id="v-oc"></td>
+          <td class="data" id="v-it"></td>
+          <td class="data" id="v-nf"></td>
+          <td class="data" id="v-dt"></td>
+        </tr>
+        <tr class="hdr">
+          <td id="h-qr">QR CODE</td><td>APROVADO</td><td>IMPEDIDO</td><td>REPROVADO</td>
+        </tr>
+        <tr>
+          <td class="qr-cell" id="qr-slot"><div id="qrcode"></div></td>
+          <td class="color-box green"></td>
+          <td class="color-box yellow"></td>
+          <td class="color-box red"></td>
+        </tr>
+      </table>
+    </div>
+    <div class="viewer-footer">
+      Etiqueta digital ESFEUS Ferramentaria · dados vinculados ao QR desta peça
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+/* ---------- Codificação ---------- */
+function b64enc(obj) {
+  return btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
+}
+function b64dec(str) {
+  return JSON.parse(decodeURIComponent(escape(atob(str))));
+}
+
+/* ---------- Coleta / renderização ---------- */
+function getData() {
+  return {
+    cli:  document.getElementById('f-cli').value,
+    os:   document.getElementById('f-os').value,
+    qty:  document.getElementById('f-qty').value,
+    desc: document.getElementById('f-desc').value,
+    des:  document.getElementById('f-des').value,
+    oc:   document.getElementById('f-oc').value,
+    it:   document.getElementById('f-it').value,
+    nf:   document.getElementById('f-nf').value,
+    dt:   document.getElementById('f-dt').value
+  };
+}
+
+function renderLabel(d) {
+  document.getElementById('v-cli').textContent  = d.cli  || '';
+  document.getElementById('v-os').textContent   = d.os   || '';
+  document.getElementById('v-qty').textContent  = d.qty  || '';
+  document.getElementById('v-desc').textContent = d.desc || '';
+  document.getElementById('v-des').textContent  = d.des  || '';
+  document.getElementById('v-oc').textContent   = d.oc   || '';
+  document.getElementById('v-it').textContent   = d.it   || '';
+  document.getElementById('v-nf').textContent   = d.nf   || '';
+  document.getElementById('v-dt').textContent   = d.dt   || '';
+}
+
+function buildViewerUrl(d) {
+  const base = (document.getElementById('base-url').value || window.location.href.split('#')[0]).trim();
+  return base + '#e=' + b64enc(d);
+}
+
+function update() {
+  const d = getData();
+  renderLabel(d);
+  const url = buildViewerUrl(d);
+  const container = document.getElementById('qrcode');
+  container.innerHTML = '';
+  new QRCode(container, {
+    text: url,
+    width: 110,
+    height: 110,
+    correctLevel: QRCode.CorrectLevel.M
+  });
+}
+
+/* ---------- Ações ---------- */
+function saveBaseUrl() {
+  localStorage.setItem('esfeus_base_url', document.getElementById('base-url').value.trim());
+  alert('URL do visualizador salva neste navegador.');
+}
+
+function copyLink() {
+  const url = buildViewerUrl(getData());
+  navigator.clipboard.writeText(url)
+    .then(() => alert('Link copiado:\n' + url))
+    .catch(() => prompt('Copie o link:', url));
+}
+
+function clearForm() {
+  ['f-cli','f-os','f-qty','f-desc','f-des','f-oc','f-it','f-nf','f-dt']
+    .forEach(id => document.getElementById(id).value = '');
+  update();
+}
+
+/* ---------- Modo visualizador (cliente) ---------- */
+function activateViewerMode(data) {
+  document.body.classList.add('viewer-mode');
+  renderLabel(data);
+  // substitui o QR pela marca (o cliente já escaneou, não precisa do QR)
+  document.getElementById('h-qr').textContent = 'ASSINATURA';
+  const slot = document.getElementById('qr-slot');
+  slot.className = 'signature-cell';
+  slot.innerHTML = '<div class="badge">ESFEUS</div><div class="badge-sub">Etiqueta digital</div>';
+  document.title = 'Etiqueta ' + (data.os || '') + ' — ESFEUS';
+}
+
+/* ---------- Inicialização ---------- */
+(function init() {
+  const saved = localStorage.getItem('esfeus_base_url');
+  if (saved) document.getElementById('base-url').value = saved;
+
+  const hash = window.location.hash;
+  if (hash.startsWith('#e=')) {
+    try {
+      const data = b64dec(hash.substring(3));
+      activateViewerMode(data);
+      return;
+    } catch (e) {
+      alert('QR inválido ou dados corrompidos.');
+    }
+  }
+  update();
+})();
+</script>
+</body>
+</html>
